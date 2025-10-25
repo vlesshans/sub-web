@@ -1,47 +1,43 @@
-const path = require('path')
-
-function resolve(dir) {
-  return path.join(__dirname, dir)
-}
+const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  css: {
-    loaderOptions: {
-      less: {
-        javascriptEnabled: true
-      }
-    }
-  },
+  // ✅ Cloudflare Pages 相对路径
+  publicPath: './',
 
+  // 输出目录
+  outputDir: 'dist',
+
+  // 关闭 SourceMap
+  productionSourceMap: false,
+
+  // ✅ 自动复制关键文件到 dist/
   chainWebpack: config => {
-    // set svg-sprite-loader
-    config.module
-      .rule('svg')
-      .exclude.add(resolve('src/icons'))
-      .end()
-    config.module
-      .rule('icons')
-      .test(/\.svg$/)
-      .include.add(resolve('src/icons'))
-      .end()
-      .use('svg-sprite-loader')
-      .loader('svg-sprite-loader')
-      .options({
-        symbolId: 'icon-[name]'
-      })
-      .end()
+    config.plugin('copy').tap(args => {
+      const newPatterns = [
+        // Headers
+        { from: path.resolve(__dirname, '_headers'), to: path.resolve(__dirname, 'dist/_headers') },
+        // Redirects
+        { from: path.resolve(__dirname, 'public/_redirects'), to: path.resolve(__dirname, 'dist/_redirects') },
+        // Config.json
+        { from: path.resolve(__dirname, 'public/config.json'), to: path.resolve(__dirname, 'dist/config.json') },
+      ];
+
+      if (Array.isArray(args) && args[0] && args[0].patterns) {
+        args[0].patterns.push(...newPatterns);
+      } else if (Array.isArray(args)) {
+        args.push(...newPatterns);
+      } else {
+        args[0] = { patterns: newPatterns };
+      }
+
+      return args;
+    });
   },
 
-  pwa: {
-    workboxOptions: {
-      // https://developers.google.com/web/tools/workbox/modules/workbox-webpack-plugin
-      skipWaiting: true,
-      clientsClaim: true,
-      importScripts: [
-        'https://storage.googleapis.com/workbox-cdn/releases/6.4.1/workbox-sw.js'
-      ],
-      navigateFallback: '/',
-      navigateFallbackDenylist: [/\/api\//]
-    }
+  // 优化设置
+  configureWebpack: {
+    optimization: { minimize: true },
+    performance: { hints: false }
   }
 };
