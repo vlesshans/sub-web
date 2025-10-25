@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   publicPath: './',
@@ -26,17 +25,17 @@ module.exports = {
       if (fs.existsSync(redirectsSrc)) {
         newPatterns.push({
           from: redirectsSrc,
-          to: path.resolve(__dirname, 'dist/_redirects.txt'), // 临时改名防止目录冲突
+          to: path.resolve(__dirname, 'dist/_redirects.txt'), // 临时改名防止冲突
           noErrorOnMissing: true,
         });
       }
 
-      // ✅ 复制 config.json
-      const configSrc = path.resolve(__dirname, 'public/config.json');
-      if (fs.existsSync(configSrc)) {
+      // ✅ 复制 config/config.json（修复未部署问题）
+      const configDir = path.resolve(__dirname, 'public/config');
+      if (fs.existsSync(configDir)) {
         newPatterns.push({
-          from: configSrc,
-          to: path.resolve(__dirname, 'dist/config.json'),
+          from: configDir,
+          to: path.resolve(__dirname, 'dist/config'),
           noErrorOnMissing: true,
         });
       }
