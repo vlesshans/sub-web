@@ -13,14 +13,5 @@
   ],
   "shortUrlBackend": "",
   "configUploadBackend": "",
-  "tgBotLink": "",
-  "defaultTarget": "clash",
-  "enableAdvanced": true,
-  "defaultInclude": "",
-  "defaultExclude": "",
-  "ui": {
-    "theme": "light",
-    "lang": "zh",
-    "showNodeList": true
-  }
+  "tgBotLink": ""
 }
