@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
@@ -14,7 +13,7 @@ import './registerServiceWorker';
 
 Vue.config.productionTip = false;
 
-// --- 读取配置文件 ---
+// === 加载配置文件 ===
 window.configUrl = `${window.location.origin}/config/config.json`;
 
 fetch(window.configUrl)
@@ -23,7 +22,7 @@ fetch(window.configUrl)
     console.log("✅ Loaded config:", conf);
     window.appConfig = conf;
 
-    // 等加载完配置再启动 Vue
+    // 等配置加载完成后再启动 Vue
     new Vue({
       router,
       render: h => h(App)
@@ -31,7 +30,9 @@ fetch(window.configUrl)
   })
   .catch(err => {
     console.error("❌ Failed to load config:", err);
-    // 即使加载失败，也启动 Vue（保底）
+
+    // 即使加载失败也启动 Vue（但会使用默认空配置）
+    window.appConfig = {};
     new Vue({
       router,
       render: h => h(App)
