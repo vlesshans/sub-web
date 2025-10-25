@@ -1,3 +1,2 @@
-# 单页应用的 Netlify 设置
-# /*    /index.html   200
-/*    /index.html   200
+# 单页应用的 Cloudflare Pages 路由设置
+/*    /index.html   200!
