@@ -1,2 +1,2 @@
-# 单页应用的 Cloudflare Pages 路由设置
-/*    /index.html   200!
+# Cloudflare Pages SPA 模式重定向
+/*    /index.html   200
