@@ -1,0 +1,12 @@
+{
+  "defaultBackend": "https://subconv.889909.xyz",
+  "defaultTarget": "clash",
+  "enableAdvanced": true,
+  "defaultExclude": "",
+  "defaultInclude": "",
+  "ui": {
+    "theme": "light",
+    "lang": "zh",
+    "showNodeList": true
+  }
+}
