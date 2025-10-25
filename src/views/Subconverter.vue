@@ -51,18 +51,23 @@
       </div>
 
       <!-- 远程配置 -->
-      <div v-if="advancedMode" class="form-group">
+      <div v-if="advancedMode && config.remoteConfig" class="form-group">
         <label>远程配置：</label>
         <select v-model="form.remoteConfig" class="input-box">
           <option value="">请选择</option>
-          <option
+          <optgroup
             v-for="group in config.remoteConfig"
-            v-for="item in group.options"
-            :key="item.value"
-            :value="item.value"
+            :label="group.label"
+            :key="group.label"
           >
-            {{ group.label }} - {{ item.label }}
-          </option>
+            <option
+              v-for="item in group.options"
+              :key="item.value"
+              :value="item.value"
+            >
+              {{ item.label }}
+            </option>
+          </optgroup>
         </select>
       </div>
 
@@ -176,7 +181,7 @@ export default {
     },
     generateShortLink() {
       if (!this.generatedUrl) return alert("请先生成订阅链接！");
-      alert("短链功能未配置，请先在 config.json 中设置 shortUrlBackend。");
+      alert("短链功能未配置，请在 config.json 中设置 shortUrlBackend。");
     },
     copyText(text) {
       navigator.clipboard.writeText(text);
