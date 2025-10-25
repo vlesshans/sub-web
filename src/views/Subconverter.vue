@@ -1,83 +1,89 @@
 /* eslint-disable */
 <template>
-  <div id="app" class="main">
-    <div class="container">
-      <h1 class="title">Subscription Converter <span class="version">v0.9.0</span></h1>
+  <div class="app-container">
+    <div class="converter-box">
+      <h2 class="title">Subscription Converter <small>v0.9.0</small></h2>
 
-      <div class="form">
-        <div class="form-item">
-          <label>模式设置：</label>
-          <input type="radio" v-model="advancedMode" :value="false" /> 基础模式
-          <input type="radio" v-model="advancedMode" :value="true" /> 进阶模式
-        </div>
+      <!-- 模式切换 -->
+      <el-form label-width="100px" size="medium">
+        <el-form-item label="模式设置：">
+          <el-radio-group v-model="mode">
+            <el-radio :label="false">基础模式</el-radio>
+            <el-radio :label="true">进阶模式</el-radio>
+          </el-radio-group>
+        </el-form-item>
 
-        <div class="form-item">
-          <label>订阅链接：</label>
-          <textarea
+        <!-- 订阅链接 -->
+        <el-form-item label="订阅链接：">
+          <el-input
+            type="textarea"
+            :rows="3"
             v-model="form.sourceSubUrl"
-            placeholder="支持单个或多个订阅链接，多个请用 | 分隔"
-            rows="3"
-          ></textarea>
-        </div>
+            placeholder="支持单个或多个订阅链接，多个用 | 分隔"
+          />
+        </el-form-item>
 
-        <div class="form-item">
-          <label>客户端：</label>
-          <select v-model="form.target">
-            <option value="clash">Clash</option>
-            <option value="singbox">Sing-box</option>
-            <option value="v2ray">V2Ray</option>
-            <option value="surfboard">Surfboard</option>
-            <option value="stash">Stash</option>
-          </select>
-        </div>
+        <!-- 客户端 -->
+        <el-form-item label="客户端：">
+          <el-select v-model="form.target" placeholder="请选择">
+            <el-option label="Clash" value="clash" />
+            <el-option label="Sing-box" value="singbox" />
+            <el-option label="V2Ray" value="v2ray" />
+            <el-option label="Surfboard" value="surfboard" />
+            <el-option label="Loon" value="loon" />
+            <el-option label="Stash" value="stash" />
+          </el-select>
+        </el-form-item>
 
-        <div class="form-item">
-          <label>后端地址：</label>
-          <input v-model="form.backend" placeholder="例如：https://subconv.889909.xyz/sub?" />
-        </div>
+        <!-- 后端地址 -->
+        <el-form-item label="后端地址：">
+          <el-input v-model="form.backend" placeholder="自动填充，或手动输入后端服务地址" />
+        </el-form-item>
 
-        <div v-if="advancedMode" class="form-item">
-          <label>远程配置：</label>
-          <select v-model="form.remoteConfig">
-            <option value="">请选择</option>
-            <optgroup v-for="group in config.remoteConfig" :label="group.label" :key="group.label">
-              <option v-for="item in group.options" :key="item.value" :value="item.value">
-                {{ item.label }}
-              </option>
-            </optgroup>
-          </select>
-        </div>
+        <!-- 远程配置 -->
+        <el-form-item v-if="mode" label="远程配置：">
+          <el-select v-model="form.remoteConfig" placeholder="请选择">
+            <el-option value="" label="默认配置" />
+            <el-option
+              v-for="group in config.remoteConfig"
+              :key="group.label"
+              :label="group.label"
+              :value="group.value"
+            />
+          </el-select>
+        </el-form-item>
 
-        <div v-if="advancedMode" class="form-item">
-          <label>Include：</label>
-          <input v-model="form.include" placeholder="节点包含关键字 (支持正则)" />
-        </div>
+        <!-- Include / Exclude -->
+        <el-form-item v-if="mode" label="Include：">
+          <el-input v-model="form.include" placeholder="节点包含关键字 (支持正则)" />
+        </el-form-item>
 
-        <div v-if="advancedMode" class="form-item">
-          <label>Exclude：</label>
-          <input v-model="form.exclude" placeholder="节点排除关键字 (支持正则)" />
-        </div>
+        <el-form-item v-if="mode" label="Exclude：">
+          <el-input v-model="form.exclude" placeholder="节点排除关键字 (支持正则)" />
+        </el-form-item>
 
-        <div v-if="advancedMode" class="form-item">
-          <label>FileName：</label>
-          <input v-model="form.fileName" placeholder="返回的订阅文件名" />
-        </div>
+        <!-- FileName -->
+        <el-form-item v-if="mode" label="FileName：">
+          <el-input v-model="form.fileName" placeholder="返回的订阅文件名" />
+        </el-form-item>
 
-        <div v-if="advancedMode" class="form-item checkbox">
-          <label><input type="checkbox" v-model="form.nodeList" /> 输出为 Node List</label>
-        </div>
+        <!-- Node List -->
+        <el-form-item v-if="mode" label="">
+          <el-checkbox v-model="form.nodeList">输出为 Node List</el-checkbox>
+        </el-form-item>
 
-        <div class="buttons">
-          <button class="btn btn-generate" @click="generateSubLink">生成订阅链接</button>
-          <button class="btn btn-short" @click="generateShortLink">生成短链</button>
-        </div>
+        <!-- 操作按钮 -->
+        <el-form-item>
+          <el-button type="danger" @click="generateSubLink">生成订阅链接</el-button>
+          <el-button type="warning" @click="generateShortLink">生成短链</el-button>
+        </el-form-item>
 
-        <div v-if="generatedUrl" class="output">
-          <label>生成结果：</label>
-          <textarea readonly v-model="generatedUrl"></textarea>
-          <button class="btn btn-copy" @click="copyText(generatedUrl)">复制</button>
-        </div>
-      </div>
+        <!-- 输出结果 -->
+        <el-form-item v-if="generatedUrl" label="生成结果：">
+          <el-input type="textarea" :rows="2" readonly v-model="generatedUrl" />
+          <el-button type="primary" size="mini" style="margin-top:10px" @click="copyText(generatedUrl)">复制</el-button>
+        </el-form-item>
+      </el-form>
     </div>
   </div>
 </template>
@@ -88,7 +94,7 @@ export default {
   data() {
     return {
       config: {},
-      advancedMode: true,
+      mode: true,
       form: {
         sourceSubUrl: "",
         backend: "",
@@ -99,7 +105,7 @@ export default {
         fileName: "",
         nodeList: false,
       },
-      generatedUrl: "",
+      generatedUrl: ""
     };
   },
   mounted() {
@@ -112,17 +118,19 @@ export default {
         const json = await res.json();
         this.config = json;
         this.form.backend = json.defaultBackend || "";
-      } catch (e) {
-        console.warn("加载配置失败：", e);
+      } catch (err) {
+        console.error("配置加载失败：", err);
       }
     },
     generateSubLink() {
       if (!this.form.sourceSubUrl.trim()) {
-        alert("请输入订阅链接！");
+        this.$message.error("请输入订阅链接！");
         return;
       }
+
       let url = this.form.backend || this.config.defaultBackend;
       if (!url.endsWith("/sub?")) url += "/sub?";
+
       const params = new URLSearchParams();
       params.set("target", this.form.target);
       params.set("url", this.form.sourceSubUrl.trim());
@@ -131,125 +139,46 @@ export default {
       if (this.form.exclude) params.set("exclude", this.form.exclude);
       if (this.form.fileName) params.set("filename", this.form.fileName);
       if (this.form.nodeList) params.set("list", "true");
+
       this.generatedUrl = url + params.toString();
     },
     generateShortLink() {
-      if (!this.generatedUrl) return alert("请先生成订阅链接！");
-      alert("短链功能未配置，请在 config.json 中设置 shortUrlBackend。");
+      this.$message.info("短链功能未启用，请在 config.json 中设置 shortUrlBackend。");
     },
     copyText(text) {
       navigator.clipboard.writeText(text);
-      alert("复制成功！");
+      this.$message.success("复制成功！");
     },
   },
 };
 </script>
 
 <style scoped>
-.main {
-  background: #f5f6fa;
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   min-height: 100vh;
-  padding: 40px 0;
+  background: #f8f9fb;
+  padding: 40px;
 }
-
-.container {
+.converter-box {
   background: #fff;
-  max-width: 900px;
-  margin: auto;
+  border-radius: 12px;
   padding: 30px 40px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  width: 850px;
 }
-
 .title {
-  color: #4b9eea;
-  font-weight: 700;
+  color: #409eff;
   margin-bottom: 25px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-
-.version {
-  float: right;
+small {
   color: #999;
   font-size: 14px;
-}
-
-.form-item {
-  margin-bottom: 15px;
-}
-
-.form-item label {
-  font-weight: 600;
-  color: #333;
-  display: block;
-  margin-bottom: 6px;
-}
-
-textarea,
-select,
-input {
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 14px;
-  background: #fff;
-}
-
-textarea:focus,
-input:focus,
-select:focus {
-  border-color: #4b9eea;
-  outline: none;
-}
-
-.checkbox {
-  margin-top: 8px;
-}
-
-.buttons {
-  display: flex;
-  justify-content: flex-start;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.btn {
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.btn-generate {
-  background: #ff7675;
-  color: #fff;
-}
-
-.btn-short {
-  background: #f6b93b;
-  color: #fff;
-}
-
-.btn-copy {
-  background: #2ecc71;
-  color: #fff;
-  margin-top: 10px;
-}
-
-.btn:hover {
-  opacity: 0.85;
-}
-
-.output textarea {
-  width: 100%;
-  height: 80px;
-  margin-top: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px;
-  resize: none;
 }
 </style>
