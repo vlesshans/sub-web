@@ -1,31 +1,42 @@
-# Default HTML response
+# ===============================
+# Default HTML Response
+# ===============================
 /*
   Content-Type: text/html; charset=utf-8
   Cache-Control: public, max-age=0, must-revalidate
 
-# JSON config
-/config.json
+# ===============================
+# JSON config (subconverter settings)
+# ===============================
+/config/config.json
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Access-Control-Allow-Headers: *
   Content-Type: application/json; charset=utf-8
   Cache-Control: public, max-age=60
 
-# JS / CSS / Images (allow caching)
-*.js
+# ===============================
+# Static assets cache policy
+# ===============================
+/*.js
   Content-Type: application/javascript; charset=utf-8
   Cache-Control: public, max-age=31536000, immutable
 
-*.css
+/*.css
   Content-Type: text/css; charset=utf-8
   Cache-Control: public, max-age=31536000, immutable
 
-*.png
+/*.png
   Content-Type: image/png
   Cache-Control: public, max-age=31536000, immutable
 
-*.ico
+/*.ico
   Content-Type: image/x-icon
   Cache-Control: public, max-age=31536000, immutable
 
+# ===============================
+# Security & misc headers
+# ===============================
 /*
-  Cache-Control: public, max-age=31536000
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
