@@ -11,6 +11,7 @@
       ]
     }
   ],
+  "enableAdvanced": true,
   "shortUrlBackend": "",
   "configUploadBackend": "",
   "tgBotLink": ""
