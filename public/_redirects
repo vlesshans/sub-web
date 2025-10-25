@@ -1,4 +1,4 @@
-# Cloudflare Pages SPA 模式重定向
-# /*    /index.html   200
-/index.html   200
-/*            /index.html   200
+# Redirect all requests to index.html (for Vue SPA)
+https://*/*    https://subweb.889909.xyz/:splat  200
+/index.html    /index.html                       200
+/*             /index.html                       200
