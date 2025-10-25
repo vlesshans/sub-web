@@ -1,21 +1,11 @@
 {
-  "defaultBackend": "https://subweb.889909.xyz/sub?",
+  "defaultBackend": "https://subconv.889909.xyz/sub?",
   "remoteConfig": [
     {
       "label": "默认配置",
-      "value": "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online.ini"
-    },
-    {
-      "label": "ACL4SSR 精简版",
-      "value": "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full.ini"
-    },
-    {
-      "label": "自定义规则模板",
       "value": "https://raw.githubusercontent.com/tindy2013/subconverter/master/base/config/example_external_config.ini"
     }
   ],
-  "shortUrlBackend": "",
-  "theme": "light",
   "title": "Subscription Converter",
   "footer": "Powered by Hans | subweb.889909.xyz"
 }
