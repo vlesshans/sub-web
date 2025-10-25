@@ -1,5 +1,6 @@
 {
   "defaultBackend": "https://subconv.889909.xyz/sub?",
+  "enableAdvanced": true,
   "remoteConfig": [
     {
       "label": "默认模板",
@@ -11,8 +12,7 @@
       ]
     }
   ],
-  "enableAdvanced": true,
-  "shortUrlBackend": "",
+  "shortUrlBackend": "https://v1.mk",
   "configUploadBackend": "",
   "tgBotLink": "",
   "ui": {
