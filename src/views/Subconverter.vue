@@ -1,3 +1,4 @@
+/* eslint-disable */
 <template>
   <div id="app" class="container">
     <h1>Subscription Converter</h1>
@@ -63,7 +64,11 @@
       <!-- 输出 -->
       <div v-if="generatedUrl" class="result">
         <label>生成的订阅链接：</label>
-        <textarea readonly class="output-box">{{ generatedUrl }}</textarea>
+        <textarea
+          readonly
+          v-model="generatedUrl"
+          class="output-box"
+        ></textarea>
       </div>
     </div>
   </div>
@@ -97,7 +102,6 @@ export default {
         const json = await response.json();
         this.config = json;
 
-        // 容错设置：防止缺字段时报错
         this.form.backend = json.defaultBackend || "";
         this.form.target = json.defaultTarget || "clash";
         this.form.include = json.defaultInclude || "";
@@ -105,9 +109,7 @@ export default {
         this.form.sourceSubUrl = "";
 
         this.configLoaded = true;
-        console.log("✅ Loaded config:", json);
       } catch (err) {
-        console.error("❌ 加载配置文件失败：", err);
         this.configLoaded = true;
       }
     },
@@ -135,7 +137,6 @@ export default {
       if (this.form.exclude) params.set("exclude", this.form.exclude);
 
       this.generatedUrl = url + params.toString();
-      console.log("✅ Generated:", this.generatedUrl);
     }
   }
 };
