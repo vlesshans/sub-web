@@ -1,0 +1,30 @@
+# Default HTML response
+/*
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: public, max-age=0, must-revalidate
+
+# JSON config
+/config.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=60
+
+# JS / CSS / Images (allow caching)
+*.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+*.css
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+*.png
+  Content-Type: image/png
+  Cache-Control: public, max-age=31536000, immutable
+
+*.ico
+  Content-Type: image/x-icon
+  Cache-Control: public, max-age=31536000, immutable
+/*
+  Cache-Control: public, max-age=31536000
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
