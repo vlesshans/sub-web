@@ -19,17 +19,18 @@ module.exports = {
         });
       }
 
-      // 复制 _redirects（修复 EISDIR 错误）
+      // ✅ 修复 EISDIR：确保 _redirects 是复制为文件而不是目录
       const redirectsSrc = path.resolve(__dirname, 'public/_redirects');
       if (fs.existsSync(redirectsSrc)) {
         newPatterns.push({
           from: redirectsSrc,
-          to: path.resolve(__dirname, 'dist/_redirects'),
+          to: path.resolve(__dirname, 'dist/_redirects'), // 目标是文件，不是目录
+          toType: 'file',
           noErrorOnMissing: true,
         });
       }
 
-      // 复制 config/config.json（修复配置加载问题）
+      // 复制 config/config.json（防止 config.json 丢失）
       const configDir = path.resolve(__dirname, 'public/config');
       if (fs.existsSync(configDir)) {
         newPatterns.push({
