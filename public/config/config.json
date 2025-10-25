@@ -14,5 +14,10 @@
   "enableAdvanced": true,
   "shortUrlBackend": "",
   "configUploadBackend": "",
-  "tgBotLink": ""
+  "tgBotLink": "",
+  "ui": {
+    "theme": "light",
+    "lang": "zh",
+    "showNodeList": true
+  }
 }
