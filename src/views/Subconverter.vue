@@ -1,197 +1,211 @@
-/* eslint-disable */
 <template>
-  <div>
-<template>
-  <div>
-    <el-row style="margin-top: 10px">
-      <el-col>
-        <el-card>
-          <div slot="header">
-            Subscription Converter
-            <svg-icon icon-class="github" style="margin-left: 20px" @click="goToProject" />
-            <div style="display: inline-block; position:absolute; right: 20px">{{ backendVersion }}</div>
-          </div>
+  <div id="app" class="container">
+    <h1>Subscription Converter</h1>
 
-          <el-container>
-            <el-form :model="form" label-width="140px" label-position="left" style="width: 100%">
-              <el-form-item label="模式设置:">
-                <el-radio v-model="advanced" label="1">基础模式</el-radio>
-                <el-radio v-model="advanced" label="2">进阶模式</el-radio>
-              </el-form-item>
+    <div v-if="!configLoaded" class="loading">正在加载配置文件...</div>
 
-              <el-form-item label="订阅链接:">
-                <el-input
-                  v-model="form.sourceSubUrl"
-                  type="textarea"
-                  rows="3"
-                  placeholder="支持订阅或ss/ssr/vmess链接，多个链接每行一个或用 | 分隔"
-                  @blur="saveSubUrl"
-                />
-              </el-form-item>
+    <div v-else>
+      <!-- 源订阅地址 -->
+      <div class="form-group">
+        <label>订阅链接：</label>
+        <input
+          v-model="form.sourceSubUrl"
+          placeholder="输入订阅地址或粘贴订阅内容"
+          class="input-box"
+        />
+      </div>
 
-              <el-form-item label="客户端:">
-                <el-select v-model="form.clientType" style="width: 100%">
-                  <el-option v-for="(v, k) in options.clientTypes" :key="k" :label="k" :value="v" />
-                </el-select>
-              </el-form-item>
+      <!-- 后端地址 -->
+      <div class="form-group">
+        <label>转换后端：</label>
+        <input
+          v-model="form.backend"
+          placeholder="默认后端"
+          class="input-box"
+        />
+      </div>
 
-              <div v-if="advanced === '2'">
-                <el-form-item label="后端地址:">
-                  <el-autocomplete
-                    style="width: 100%"
-                    v-model="form.customBackend"
-                    :fetch-suggestions="backendSearch"
-                    placeholder="动动小手，（建议）自行搭建后端服务。例：http://127.0.0.1:25500/sub?"
-                  >
-                    <el-button slot="append" @click="gotoGayhub" icon="el-icon-link">前往项目仓库</el-button>
-                  </el-autocomplete>
-                </el-form-item>
+      <!-- 转换目标 -->
+      <div class="form-group">
+        <label>目标类型：</label>
+        <select v-model="form.target">
+          <option value="clash">Clash</option>
+          <option value="singbox">Sing-box</option>
+          <option value="v2ray">V2Ray</option>
+          <option value="surfboard">Surfboard</option>
+        </select>
+      </div>
 
-                <el-form-item label="远程配置:">
-                  <el-select
-                    v-model="form.remoteConfig"
-                    allow-create
-                    filterable
-                    placeholder="请选择"
-                    style="width: 100%"
-                  >
-                    <el-option-group v-for="group in options.remoteConfig" :key="group.label" :label="group.label">
-                      <el-option
-                        v-for="item in group.options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-option-group>
-                    <el-button slot="append" @click="gotoRemoteConfig" icon="el-icon-link">配置示例</el-button>
-                  </el-select>
-                </el-form-item>
+      <!-- 高级设置 -->
+      <div class="form-group">
+        <label>
+          <input type="checkbox" v-model="form.advanced" />
+          显示高级选项
+        </label>
+      </div>
 
-                <el-form-item label="Include:">
-                  <el-input v-model="form.includeRemarks" placeholder="节点名包含的关键字，支持正则" />
-                </el-form-item>
+      <div v-if="form.advanced" class="advanced-section">
+        <div class="form-group">
+          <label>Include：</label>
+          <input v-model="form.include" placeholder="节点过滤 Include" class="input-box" />
+        </div>
+        <div class="form-group">
+          <label>Exclude：</label>
+          <input v-model="form.exclude" placeholder="节点过滤 Exclude" class="input-box" />
+        </div>
+      </div>
 
-                <el-form-item label="Exclude:">
-                  <el-input v-model="form.excludeRemarks" placeholder="节点名不包含的关键字，支持正则" />
-                </el-form-item>
+      <!-- 转换按钮 -->
+      <div class="form-group">
+        <button @click="generateLink" class="btn">生成链接</button>
+      </div>
 
-                <el-form-item label="FileName:">
-                  <el-input v-model="form.filename" placeholder="返回的订阅文件名" />
-                </el-form-item>
-              </div>
-
-              <el-divider content-position="center">
-                <i class="el-icon-magic-stick"></i>
-              </el-divider>
-
-              <el-form-item label="定制订阅:">
-                <el-input class="copy-content" disabled v-model="customSubUrl">
-                  <el-button
-                    slot="append"
-                    v-clipboard:copy="customSubUrl"
-                    v-clipboard:success="onCopy"
-                    icon="el-icon-document-copy"
-                  >复制</el-button>
-                </el-input>
-              </el-form-item>
-
-              <el-form-item label="订阅短链:">
-                <el-input class="copy-content" disabled v-model="curtomShortSubUrl">
-                  <el-button
-                    slot="append"
-                    v-clipboard:copy="curtomShortSubUrl"
-                    v-clipboard:success="onCopy"
-                    icon="el-icon-document-copy"
-                  >复制</el-button>
-                </el-input>
-              </el-form-item>
-
-              <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
-                <el-button
-                  style="width: 140px"
-                  type="danger"
-                  @click="makeUrl"
-                  :disabled="form.sourceSubUrl.length === 0"
-                >生成订阅链接</el-button>
-
-                <el-button
-                  style="width: 140px"
-                  type="danger"
-                  @click="makeShortUrl"
-                  :loading="loading"
-                  :disabled="customSubUrl.length === 0"
-                >生成短链接</el-button>
-              </el-form-item>
-            </el-form>
-          </el-container>
-        </el-card>
-      </el-col>
-    </el-row>
+      <!-- 输出 -->
+      <div v-if="generatedUrl" class="result">
+        <label>生成的订阅链接：</label>
+        <textarea readonly class="output-box">{{ generatedUrl }}</textarea>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
+  name: "Subconverter",
   data() {
     return {
-      backendVersion: "",
-      advanced: "2",
-      options: {
-        clientTypes: {
-          Clash: "clash",
-          Surge: "surge&ver=4",
-          QuantumultX: "quanx",
-          V2Ray: "v2ray",
-          Trojan: "trojan",
-          singbox: "singbox"
-        },
-        remoteConfig: []
-      },
+      config: {},
+      configLoaded: false,
       form: {
         sourceSubUrl: "",
-        clientType: "clash",
-        customBackend: "",
-        remoteConfig: ""
+        backend: "",
+        target: "",
+        include: "",
+        exclude: "",
+        advanced: false
       },
-      customSubUrl: "",
-      curtomShortSubUrl: "",
-      loading: false
+      generatedUrl: ""
     };
   },
-  async mounted() {
-    try {
-      const res = await fetch("https://subweb.889909.xyz/config/config.json", {
-        headers: { "Cache-Control": "no-cache" }
-      });
-      if (res.ok) {
-        const config = await res.json();
-        if (config.defaultBackend) this.form.customBackend = config.defaultBackend;
-        if (config.remoteConfig) this.options.remoteConfig = config.remoteConfig;
-        console.log("✅ Loaded config:", config);
-      } else {
-        console.warn("⚠️ config.json not found, using fallback.");
-        this.form.customBackend = "http://127.0.0.1:25500/sub?";
-      }
-    } catch (err) {
-      console.error("❌ Error loading config.json:", err);
-      this.form.customBackend = "http://127.0.0.1:25500/sub?";
-    }
+  mounted() {
+    this.loadConfig();
   },
   methods: {
-    onCopy() {
-      this.$message.success("已复制到剪贴板！");
+    async loadConfig() {
+      try {
+        const response = await fetch("/config/config.json?t=" + Date.now());
+        const json = await response.json();
+        this.config = json;
+
+        // 容错设置：防止缺字段时报错
+        this.form.backend = json.defaultBackend || "";
+        this.form.target = json.defaultTarget || "clash";
+        this.form.include = json.defaultInclude || "";
+        this.form.exclude = json.defaultExclude || "";
+        this.form.sourceSubUrl = "";
+
+        this.configLoaded = true;
+        console.log("✅ Loaded config:", json);
+      } catch (err) {
+        console.error("❌ 加载配置文件失败：", err);
+        this.configLoaded = true;
+      }
     },
-    makeUrl() {
-      if (!this.form.sourceSubUrl) {
-        this.$message.error("请填写订阅链接");
+
+    generateLink() {
+      if (!this.form.sourceSubUrl.trim()) {
+        alert("请先输入订阅链接！");
         return;
       }
-      const backend = this.form.customBackend || "https://subconv.889909.xyz/sub?";
-      const url = this.form.sourceSubUrl.replace(/\n/g, "|");
-      this.customSubUrl = `${backend}target=${this.form.clientType}&url=${encodeURIComponent(url)}`;
-      this.$copyText(this.customSubUrl);
-      this.$message.success("订阅链接已复制！");
+
+      let backend = this.form.backend || this.config.defaultBackend;
+      if (!backend) {
+        alert("后端地址未配置！");
+        return;
+      }
+
+      let url = backend;
+      if (!url.endsWith("/sub?")) url += "/sub?";
+
+      const params = new URLSearchParams();
+      params.set("target", this.form.target || "clash");
+      params.set("url", this.form.sourceSubUrl.trim());
+
+      if (this.form.include) params.set("include", this.form.include);
+      if (this.form.exclude) params.set("exclude", this.form.exclude);
+
+      this.generatedUrl = url + params.toString();
+      console.log("✅ Generated:", this.generatedUrl);
     }
   }
 };
 </script>
+
+<style scoped>
+.container {
+  max-width: 680px;
+  margin: 50px auto;
+  padding: 20px;
+  text-align: left;
+  background: #ffffff10;
+  border-radius: 16px;
+  box-shadow: 0 0 10px #0002;
+}
+h1 {
+  text-align: center;
+  color: #4b9eea;
+  margin-bottom: 30px;
+}
+.form-group {
+  margin-bottom: 16px;
+}
+label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+}
+.input-box,
+textarea,
+select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+.input-box:focus {
+  border-color: #4b9eea;
+}
+.btn {
+  background: #4b9eea;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn:hover {
+  background: #1d73d6;
+}
+.result {
+  margin-top: 20px;
+}
+.output-box {
+  width: 100%;
+  height: 80px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+.loading {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
+.advanced-section {
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+}
+</style>
