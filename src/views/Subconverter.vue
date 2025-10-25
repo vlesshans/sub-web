@@ -75,61 +75,7 @@
                 <el-form-item label="FileName:">
                   <el-input v-model="form.filename" placeholder="返回的订阅文件名" />
                 </el-form-item>
-
-                <el-form-item v-for="(param, i) in customParams" :key="i">
-                  <el-input slot="label" v-model="param.name" placeholder="自定义参数名">
-                    <div slot="suffix" style="width: 10px;">:</div>
-                  </el-input>
-                  <el-input v-model="param.value" placeholder="自定义参数内容">
-                    <el-button
-                      slot="suffix"
-                      type="text"
-                      icon="el-icon-delete"
-                      style="margin-right: 5px"
-                      @click="customParams.splice(i, 1)"
-                    />
-                  </el-input>
-                </el-form-item>
-
-                <el-form-item label-width="0px">
-                  <el-row type="flex">
-                    <el-col>
-                      <el-checkbox v-model="form.nodeList" label="输出为 Node List" border />
-                    </el-col>
-                    <el-popover placement="bottom" v-model="form.extraset">
-                      <el-row><el-checkbox v-model="form.emoji" label="Emoji" /></el-row>
-                      <el-row><el-checkbox v-model="form.scv" label="跳过证书验证" /></el-row>
-                      <el-row><el-checkbox v-model="form.udp" @change="needUdp = true" label="启用 UDP" /></el-row>
-                      <el-row><el-checkbox v-model="form.appendType" label="节点类型" /></el-row>
-                      <el-row><el-checkbox v-model="form.sort" label="排序节点" /></el-row>
-                      <el-row><el-checkbox v-model="form.fdn" label="过滤非法节点" /></el-row>
-                      <el-row><el-checkbox v-model="form.expand" label="规则展开" /></el-row>
-                      <el-button slot="reference">更多选项</el-button>
-                    </el-popover>
-
-                    <el-popover placement="bottom" style="margin-left: 10px">
-                      <el-row><el-checkbox v-model="form.tpl.surge.doh" label="Surge.DoH" /></el-row>
-                      <el-row><el-checkbox v-model="form.tpl.clash.doh" label="Clash.DoH" /></el-row>
-                      <el-row><el-checkbox v-model="form.insert" label="网易云" /></el-row>
-                      <el-button slot="reference">定制功能</el-button>
-                    </el-popover>
-
-                    <el-popover placement="top-end" title="添加自定义转换参数" trigger="hover">
-                      <el-link
-                        type="primary"
-                        :href="subDocAdvanced"
-                        target="_blank"
-                        icon="el-icon-info"
-                      >参考文档</el-link>
-                      <el-button slot="reference" @click="addCustomParam" style="margin-left: 10px">
-                        <i class="el-icon-plus" />
-                      </el-button>
-                    </el-popover>
-                  </el-row>
-                </el-form-item>
               </div>
-
-              <div style="margin-top: 50px"></div>
 
               <el-divider content-position="center">
                 <i class="el-icon-magic-stick"></i>
@@ -182,22 +128,11 @@
 </template>
 
 <script>
-/* eslint-disable */
-const project = process.env.VUE_APP_PROJECT
-const remoteConfigSample = process.env.VUE_APP_SUBCONVERTER_REMOTE_CONFIG
-const subDocAdvanced = process.env.VUE_APP_SUBCONVERTER_DOC_ADVANCED
-const gayhubRelease = process.env.VUE_APP_BACKEND_RELEASE
-const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND + '/sub?'
-const shortUrlBackend = process.env.VUE_APP_MYURLS_API
-const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_API
-const tgBotLink = process.env.VUE_APP_BOT_LINK
-
 export default {
   data() {
     return {
       backendVersion: "",
       advanced: "2",
-      isPC: true,
       options: {
         clientTypes: {
           Clash: "clash",
@@ -206,56 +141,53 @@ export default {
           V2Ray: "v2ray",
           Trojan: "trojan",
           singbox: "singbox"
-        }
+        },
+        remoteConfig: []
       },
       form: {
         sourceSubUrl: "",
-        clientType: "",
+        clientType: "clash",
         customBackend: "",
-        remoteConfig: "",
-        emoji: true,
-        scv: true
+        remoteConfig: ""
       },
-      loading: false,
       customSubUrl: "",
       curtomShortSubUrl: "",
-      subDocAdvanced
+      loading: false
     };
   },
-  created() {
-    this.form.clientType = "clash";
-    this.getBackendVersion();
+  async mounted() {
+    try {
+      const res = await fetch("https://subweb.889909.xyz/config/config.json", {
+        headers: { "Cache-Control": "no-cache" }
+      });
+      if (res.ok) {
+        const config = await res.json();
+        if (config.defaultBackend) this.form.customBackend = config.defaultBackend;
+        if (config.remoteConfig) this.options.remoteConfig = config.remoteConfig;
+        console.log("✅ Loaded config:", config);
+      } else {
+        console.warn("⚠️ config.json not found, using fallback.");
+        this.form.customBackend = "http://127.0.0.1:25500/sub?";
+      }
+    } catch (err) {
+      console.error("❌ Error loading config.json:", err);
+      this.form.customBackend = "http://127.0.0.1:25500/sub?";
+    }
   },
   methods: {
     onCopy() {
       this.$message.success("已复制到剪贴板！");
-    },
-    goToProject() {
-      window.open(project);
-    },
-    gotoGayhub() {
-      window.open(gayhubRelease);
-    },
-    gotoRemoteConfig() {
-      window.open(remoteConfigSample);
     },
     makeUrl() {
       if (!this.form.sourceSubUrl) {
         this.$message.error("请填写订阅链接");
         return;
       }
-      const backend = this.form.customBackend || defaultBackend;
+      const backend = this.form.customBackend || "https://subconv.889909.xyz/sub?";
       const url = this.form.sourceSubUrl.replace(/\n/g, "|");
       this.customSubUrl = `${backend}target=${this.form.clientType}&url=${encodeURIComponent(url)}`;
       this.$copyText(this.customSubUrl);
       this.$message.success("订阅链接已复制！");
-    },
-    getBackendVersion() {
-      this.$axios
-        .get(defaultBackend.replace("/sub?", "/version"))
-        .then(res => {
-          this.backendVersion = res.data.replace(/backend\n$/gm, "");
-        });
     }
   }
 };
