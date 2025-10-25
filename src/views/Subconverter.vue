@@ -195,73 +195,104 @@ export default {
 .container {
   max-width: 900px;
   margin: 50px auto;
-  padding: 30px;
-  background: #fff;
+  padding: 40px 50px;
+  background: #f9fafc;
   border-radius: 12px;
-  box-shadow: 0 0 15px #0001;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 1px solid #eaecef;
 }
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-.version {
-  color: #999;
-  font-size: 14px;
-}
+
 h1 {
   color: #4b9eea;
   font-weight: 700;
+  text-align: left;
+  margin-bottom: 30px;
 }
+
+.version {
+  float: right;
+  color: #999;
+  font-size: 14px;
+  margin-top: -36px;
+}
+
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
+
 label {
   font-weight: 600;
   color: #333;
   display: block;
   margin-bottom: 6px;
 }
-.input-box,
+
 textarea,
-select {
+select,
+input {
   width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 8px;
+  padding: 10px 12px;
   outline: none;
+  font-size: 14px;
+  background: #fff;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
-.input-box:focus {
+
+textarea:focus,
+input:focus,
+select:focus {
   border-color: #4b9eea;
+  box-shadow: 0 0 0 2px rgba(75,158,234,0.2);
 }
+
 .checkbox-group {
   margin-top: 10px;
 }
+
 .buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 16px;
+  margin-top: 25px;
 }
+
 .btn {
-  padding: 10px 20px;
+  flex: 1;
+  padding: 10px 18px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.2s;
 }
+
 .btn.main {
   background: #4b9eea;
   color: #fff;
 }
-.btn.secondary {
-  background: #f6b93b;
-  color: #fff;
+
+.btn.main:hover {
+  background: #3181d4;
 }
+
+.btn.secondary {
+  background: #ffca28;
+  color: #333;
+}
+
+.btn.secondary:hover {
+  background: #f5b400;
+}
+
 .btn.copy {
   background: #2ecc71;
   color: #fff;
   margin-top: 10px;
 }
+
 .output-box {
   width: 100%;
   height: 80px;
@@ -270,9 +301,11 @@ select {
   padding: 10px;
   font-size: 14px;
   resize: none;
+  background: #fff;
 }
+
 .loading {
   text-align: center;
-  color: #999;
+  color: #888;
 }
 </style>
