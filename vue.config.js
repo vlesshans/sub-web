@@ -11,30 +11,37 @@ module.exports = {
     config.plugin('copy').tap(args => {
       const newPatterns = [];
 
-      // _headers
-      if (fs.existsSync(path.resolve(__dirname, '_headers'))) {
+      // ✅ 复制 _headers
+      const headersSrc = path.resolve(__dirname, '_headers');
+      if (fs.existsSync(headersSrc)) {
         newPatterns.push({
-          from: path.resolve(__dirname, '_headers'),
-          to: path.resolve(__dirname, 'dist/_headers')
+          from: headersSrc,
+          to: path.resolve(__dirname, 'dist'),
+          noErrorOnMissing: true,
         });
       }
 
-      // _redirects
-      if (fs.existsSync(path.resolve(__dirname, 'public/_redirects'))) {
+      // ✅ 复制 _redirects（修复 EISDIR 错误）
+      const redirectsSrc = path.resolve(__dirname, 'public/_redirects');
+      if (fs.existsSync(redirectsSrc)) {
         newPatterns.push({
-          from: path.resolve(__dirname, 'public/_redirects'),
-          to: path.resolve(__dirname, 'dist/_redirects')
+          from: redirectsSrc,
+          to: path.resolve(__dirname, 'dist/_redirects.txt'), // 临时改名防止目录冲突
+          noErrorOnMissing: true,
         });
       }
 
-      // config.json
-      if (fs.existsSync(path.resolve(__dirname, 'public/config.json'))) {
+      // ✅ 复制 config.json
+      const configSrc = path.resolve(__dirname, 'public/config.json');
+      if (fs.existsSync(configSrc)) {
         newPatterns.push({
-          from: path.resolve(__dirname, 'public/config.json'),
-          to: path.resolve(__dirname, 'dist/config.json')
+          from: configSrc,
+          to: path.resolve(__dirname, 'dist/config.json'),
+          noErrorOnMissing: true,
         });
       }
 
+      // 注入 patterns
       if (Array.isArray(args) && args[0] && args[0].patterns) {
         args[0].patterns.push(...newPatterns);
       } else if (Array.isArray(args)) {
@@ -47,7 +54,22 @@ module.exports = {
     });
   },
 
+  // ✅ 构建完成后重命名 _redirects.txt → _redirects
   configureWebpack: {
+    plugins: [
+      {
+        apply: (compiler) => {
+          compiler.hooks.done.tap('RenameRedirectsPlugin', () => {
+            const src = path.resolve(__dirname, 'dist/_redirects.txt');
+            const dest = path.resolve(__dirname, 'dist/_redirects');
+            if (fs.existsSync(src)) {
+              fs.renameSync(src, dest);
+              console.log('✅ _redirects file renamed successfully.');
+            }
+          });
+        },
+      },
+    ],
     optimization: { minimize: true },
     performance: { hints: false }
   }
